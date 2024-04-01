@@ -1,17 +1,34 @@
 const { Fruits } = require('../models')
-
+const cloudinary = require('../utils/cloudinary');
 // Create Fruit
 exports.createFruit = async (req, res, next) => {
     const data = req.body;
-    if (data.name && data.quantity && data.price && data.status && data.image && data.description && data.distributor) {
+    if (data.name && data.quantity && data.price && data.status && data.description && data.distributor) {
         try {
+            const images = [];
+            for (const file of req.files) {
+                const result = await cloudinary.uploader.upload(file.path, {
+                    folder: 'fruits',
+                    // width: 150,
+                    // height: 150,
+                    // crop: 'fill'
+                });
+                images.push({
+                    public_id: result.public_id,
+                    url: result.secure_url
+                });
+            }
+            data.image = images;
             const fruit = new Fruits(data);
             await fruit.save();
             const populatedFruit = await Fruits.findById(fruit._id).populate('distributor');
             res.status(200).json(populatedFruit);
         } catch (error) {
             console.log(error);
-            res.status(500).json(error);
+            res.status(500).json({
+                message: 'Internal Server Error',
+                stack: error.stack
+            })
         }
     } else {
         res.status(400).json({

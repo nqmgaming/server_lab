@@ -22,11 +22,18 @@ const fruits = new Schema({
         required: true,
         default: 0 // 0: not sold, 1: sold, -1 : deleted
     },
-    image: {
-        type: String,
-        required: true,
-
-    },
+    image: [
+        {
+            public_id: {
+                type: String,
+                required: true
+            },
+            url: {
+                type: String,
+                required: true
+            }
+        }
+    ],
     description: {
         type: String,
         required: true,
