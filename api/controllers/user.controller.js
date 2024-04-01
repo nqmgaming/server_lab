@@ -24,13 +24,21 @@ exports.createUser = async (req, res, next) => {
         }
         try {
             const hashedPassword = await bcrypt.hash(data.password, 10);
-            const result = await cloudinary.uploader.upload(req.file.path); // Upload image to Cloudinary
+            const result = await cloudinary.uploader.upload(req.file.path, {
+                folder: 'avatars',
+                // width: 150,
+                // height: 150,
+                // crop: 'fill'
+            });
             const user = new Users({
                 username: data.username,
                 password: hashedPassword,
                 email: data.email,
                 name: data.name,
-                avatar: result.secure_url, // Save Cloudinary URL to avatar field
+                avatar: {
+                    public_id: result.public_id,
+                    url: result.secure_url
+                },
                 available: data.available
             })
             await user.save();
@@ -84,5 +92,53 @@ exports.loginUser = async (req, res, next) => {
         res.status(400).json({
             message: 'Bad Request, missing parameters'
         });
+    }
+}
+
+// Update User by ID
+exports.patchUser = async (req, res, next) => {
+    const { id } = req.params;
+    const updateData = req.body;
+
+    try {
+        const user = await Users.findById(id);
+        if (!user) {
+            return res.status(404).json({
+                message: 'User not found'
+            });
+        }
+
+        // If password is being updated, hash the new password
+        if (updateData.password) {
+            updateData.password = await bcrypt.hash(updateData.password, 10);
+        }
+
+        // If avatar is being updated, delete old avatar from Cloudinary and upload new avatar
+        if (req.file) {
+            if (user.avatar && user.avatar.public_id) {
+                // Delete old avatar
+                await cloudinary.uploader.destroy(user.avatar.public_id, {
+                    invalidate: true
+                });
+            }
+
+            // Upload new avatar
+            const result = await cloudinary.uploader.upload(req.file.path, {
+                folder: 'avatars',
+                // width: 150,
+                // height: 150,
+                // crop: 'fill'
+            });
+            updateData.avatar = {
+                public_id: result.public_id,
+                url: result.secure_url
+            };
+        }
+
+        const updatedUser = await Users.findByIdAndUpdate(id, updateData, { new: true });
+        res.status(200).json(updatedUser);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json(error);
     }
 }

@@ -25,9 +25,14 @@ const users = new Schema({
         maxLength: 255
     },
     avatar: {
-        type: String,
-        required: true,
-        maxLength: 255
+        public_id: {
+            type: String,
+            required: true
+        },
+        url: {
+            type: String,
+            required: true
+        }
     },
     available: {
         type: Boolean,
