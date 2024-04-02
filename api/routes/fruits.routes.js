@@ -8,7 +8,7 @@ const upload = require('../middlewares/multer.middleware');
 const multer = require('multer');
 
 // Create Fruit
-router.post('/create', upload.array("images", 2), authMiddleware.authenticateToken, fruitsController.createFruit);
+router.post('/create', upload.array("images"), authMiddleware.authenticateToken, fruitsController.createFruit);
 
 // Get Fruits
 router.get('/', authMiddleware.authenticateToken, fruitsController.getFruits);
@@ -17,7 +17,8 @@ router.get('/', authMiddleware.authenticateToken, fruitsController.getFruits);
 router.get('/:fruitId', authMiddleware.authenticateToken, fruitsController.getFruitById);
 
 // Update Fruit by ID
-router.patch('/:fruitId', authMiddleware.authenticateToken, fruitsController.updateFruit);
+
+router.patch('/:fruitId', upload.array("images"), authMiddleware.authenticateToken, fruitsController.updateFruit);
 
 // Delete Fruit by ID
 router.delete('/:fruitId', authMiddleware.authenticateToken, fruitsController.deleteFruit);

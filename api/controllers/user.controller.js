@@ -8,7 +8,7 @@ const cloudinary = require('../utils/cloudinary');
 
 exports.createUser = async (req, res, next) => {
     const data = req.body;
-    console.log(data);
+    console.log(req.file);
     if (data.username && data.password && data.email && data.name) {
         const usernameExist = await Users.findOne({ username: data.username });
         if (usernameExist) {
