@@ -39,6 +39,7 @@ This project is a Node.js application using Express.js framework. It provides AP
     CLOUDINARY_API_KEY=<your-cloudinary-api-key>
     CLOUDINARY_SECRET_KEY=<your-cloudinary-secret-key>
     PORT=<your-port>
+    SECRET_KEY=<secret-key>
     ```
 
 4. Start the server:
