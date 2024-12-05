@@ -1,7 +1,7 @@
-const { Fruits } = require('../models')
+const {Fruits} = require('../models')
 const cloudinary = require('../utils/cloudinary');
 // Create Fruit
-exports.createFruit = async (req, res, next) => {
+exports.createFruit = async (req, res) => {
     // console.log(req.body);
     const data = req.body;
     console.log(req.files);
@@ -20,7 +20,7 @@ exports.createFruit = async (req, res, next) => {
                     });
                 } catch (error) {
                     console.error(`Failed to upload image: ${error}`);
-                    return res.status(500).json({ message: 'Image upload failed' });
+                    return res.status(500).json({message: 'Image upload failed'});
                 }
             }
             data.image = images;
@@ -40,7 +40,7 @@ exports.createFruit = async (req, res, next) => {
 }
 
 // Get Fruits// Get Fruits
-exports.getFruits = async (req, res, next) => {
+exports.getFruits = async (req, res) => {
     const page = req.query.page || 1;
     const limit = req.query.limit || 10;
     const skip = (page - 1) * limit;
@@ -50,7 +50,7 @@ exports.getFruits = async (req, res, next) => {
         const fruits = await Fruits.find()
             .skip(skip)
             .limit(limit)
-            .sort({ [sortBy]: order })
+            .sort({[sortBy]: order})
             .populate('distributor');
         res.status(200).json(fruits);
     } catch (error) {
@@ -59,7 +59,7 @@ exports.getFruits = async (req, res, next) => {
 }
 
 // Get Fruit by ID
-exports.getFruitById = async (req, res, next) => {
+exports.getFruitById = async (req, res) => {
     const fruitId = req.params.fruitId;
     if (fruitId) {
         try {
@@ -82,7 +82,7 @@ exports.getFruitById = async (req, res, next) => {
 }
 
 // Update Fruit by ID
-exports.updateFruit = async (req, res, next) => {
+exports.updateFruit = async (req, res) => {
     const fruitId = req.params.fruitId;
     if (fruitId) {
         try {
@@ -111,7 +111,7 @@ exports.updateFruit = async (req, res, next) => {
                             });
                         } catch (error) {
                             console.error(`Failed to upload image: ${error}`);
-                            return res.status(500).json({ message: 'Image upload failed' });
+                            return res.status(500).json({message: 'Image upload failed'});
                         }
                     }
                 }
@@ -130,18 +130,18 @@ exports.updateFruit = async (req, res, next) => {
 
                 res.status(200).json(fruit);
             } else {
-                res.status(404).json({ message: 'Fruit not found' });
+                res.status(404).json({message: 'Fruit not found'});
             }
         } catch (error) {
             console.log(error);
             res.status(500).json(error);
         }
     } else {
-        res.status(400).json({ message: 'Bad Request, missing parameters' });
+        res.status(400).json({message: 'Bad Request, missing parameters'});
     }
 };
 // Delete Fruit by ID
-exports.deleteFruit = async (req, res, next) => {
+exports.deleteFruit = async (req, res) => {
     const fruitId = req.params.fruitId;
     if (fruitId) {
         try {
@@ -185,11 +185,11 @@ exports.deleteFruit = async (req, res, next) => {
 }
 
 // Search Fruits
-exports.searchFruits = async (req, res, next) => {
+exports.searchFruits = async (req, res) => {
     const query = req.query.name;
     if (query) {
         try {
-            const fruits = await Fruits.find({ name: { $regex: query, $options: 'i' } }).populate('distributor');
+            const fruits = await Fruits.find({name: {$regex: query, $options: 'i'}}).populate('distributor');
             if (fruits.length > 0) {
                 res.status(200).json(fruits);
             } else {
@@ -208,25 +208,21 @@ exports.searchFruits = async (req, res, next) => {
 }
 
 // Get fruit using query params
-exports.getFruitByQuery = async (req, res, next) => {
-    console.log(req.query);
-    console.log('====================================');
-    console.log("Run heare");
-    console.log('====================================');
+exports.getFruitByQuery = async (req, res) => {
     let perPage = 6;
     let page = req.query.page || 1;
     let skip = (perPage * page) - perPage;
     let count = await Fruits.find().countDocuments();
 
-    const name = { "$regex": req.query.name ?? "", "$options": "i" };
+    const name = {"$regex": req.query.name ?? "", "$options": "i"};
 
-    const price = { "$gte": req.query.price ?? 0 };
+    const price = {"$gte": req.query.price ?? 0};
 
-    const sort = { price: req.query.sort ?? 1 };
+    const sort = {price: req.query.sort ?? 1};
 
     try {
 
-        const fruits = await Fruits.find({ name, price }).skip(skip).limit(perPage).sort(sort).populate('distributor');
+        const fruits = await Fruits.find({name, price}).skip(skip).limit(perPage).sort(sort).populate('distributor');
 
         res.status(200).json({
             fruits,

@@ -1,12 +1,12 @@
 const { Users } = require('../models');
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
+require('jsonwebtoken');
 const authenticateToken = require('../middlewares/auth.middleware');
 require('dotenv').config();
 const cloudinary = require('../utils/cloudinary');
 
 
-exports.createUser = async (req, res, next) => {
+exports.createUser = async (req, res) => {
     const data = req.body;
     console.log(req.file);
     if (data.username && data.password && data.email && data.name) {
@@ -54,7 +54,7 @@ exports.createUser = async (req, res, next) => {
     }
 }
 
-exports.loginUser = async (req, res, next) => {
+exports.loginUser = async (req, res) => {
     const data = req.body;
     console.log(data);
     if (data.username && data.password) {
@@ -96,7 +96,7 @@ exports.loginUser = async (req, res, next) => {
 }
 
 // Update User by ID
-exports.patchUser = async (req, res, next) => {
+exports.patchUser = async (req, res) => {
     const { id } = req.params;
     const updateData = req.body;
 
@@ -113,16 +113,16 @@ exports.patchUser = async (req, res, next) => {
             updateData.password = await bcrypt.hash(updateData.password, 10);
         }
 
-        // If avatar is being updated, delete old avatar from Cloudinary and upload new avatar
+        // If uploads is being updated, delete old uploads from Cloudinary and upload new uploads
         if (req.file) {
             if (user.avatar && user.avatar.public_id) {
-                // Delete old avatar
+                // Delete old uploads
                 await cloudinary.uploader.destroy(user.avatar.public_id, {
                     invalidate: true
                 });
             }
 
-            // Upload new avatar
+            // Upload new uploads
             const result = await cloudinary.uploader.upload(req.file.path, {
                 folder: 'avatars',
                 // width: 150,
